@@ -1,0 +1,205 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Jade Delight</title>
+</head>
+
+<body>
+<script language="javascript">
+
+function MenuItem(name, cost)
+{
+	this.name = name;
+	this.cost=cost;
+}
+
+menuItems = new Array(
+	new MenuItem("Chicken Chop Suey", 4.5),
+	new MenuItem("Sweet and Sour Pork", 6.25),
+	new MenuItem("Shrimp Lo Mein", 5.25),
+	new MenuItem("Moo Shi Chicken", 6.5),
+	new MenuItem("Fried Rice", 2.35)
+);
+
+function makeSelect(name, minRange, maxRange)
+{
+	var t= "";
+	t = "<select name='" + name + "' size='1'>";
+	for (j=minRange; j<=maxRange; j++)
+	   t += "<option>" + j + "</option>";
+	t+= "</select>"; 
+	return t;
+}
+</script>
+
+<h1>Jade Delight</h1>
+<form>
+    
+
+<p>First Name: <input type="text"  name='fname' /></p>
+<p >Last Name*:  <input type="text"  name='lname' id = "lname" /></p>
+<p id = "street"> Street: <input type="text"  name='street' /></p>
+<p id = "city"> City: <input type="text"  name='city' /></p>
+<p id = "phone">Phone*: <input type="text"  name='phone' id = "phone"/></p>
+<p> 
+	<input type="radio"  name="p_or_d" id = "pickup" value = "pickup" />Pickup  
+	<input type="radio"  name='p_or_d' id = "delivery" value = 'delivery' checked = "checked"/>
+	Delivery
+</p>
+<table border="0" cellpadding="3" id = "myTable">
+  <tr>
+    <th>Select Item</th>
+    <th>Item Name</th>
+    <th>Cost Each</th>
+    <th>Total Cost</th>
+  </tr>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script language="javascript">
+   
+    // jquery code to determine what needs to appear to the customer
+    $(document).ready(function(){
+        $("#pickup").change(function(){
+            $("#street").hide();
+            $("#city").hide();
+        });
+        $("#delivery").change(function(){
+            $("#street").show();
+            $("#city").show();
+        });
+        //code to get the parameters of the element that caused the event
+        $("select").change(function(){
+            amount = this.selectedIndex;
+            rowIndex = this.name.substring(4);
+            calc();                
+        });
+    });
+
+  var s = "";
+  for (i=0; i< menuItems.length; i++)
+  {
+	  s += "<tr><td>";
+	  s += makeSelect("quan" + i, 0, 10);
+	  s += "</td><td>" + menuItems[i].name + "</td>";
+	  s += "<td> $ " + menuItems[i].cost.toFixed(2) + "</td>";
+	  s += "<td>$<input type='text' id = 'cost' name='cost' value = 0.00></td></tr>";
+  }
+    
+    
+// function to calculate the total costs of each item
+  function calc(){
+      
+      amount = parseInt(amount);
+      rowIndex = parseInt(rowIndex);
+     
+      
+      
+      //var total = 0
+      //totalCost = [];
+      for (i=0; i< menuItems.length; i++){
+        var totalCost = amount * menuItems[rowIndex].cost;
+        //total += totalCost[rowIndex]
+        $("#cost").val(totalCost.toFixed(2))
+      }
+      var totalTax = (totalCost + (totalCost * .0625));
+      
+      $("#subtotal").val(totalCost.toFixed(2));
+      $("#tax").val((totalCost * .0625).toFixed(2));
+      $("#total").val(totalTax.toFixed(2));
+  }
+  
+  // function runs through a checklist to make sure that the order is ready to be processed
+  function submit(){
+      
+      totalCost = document.getElementById("cost").value;
+      
+      
+       numberC = nameCheck();
+       numberC = numberCheck();
+       orderC = orderCheck();
+       deliveryC = deliveryCheck();
+        
+        if(nameC == 1 && numberC == 1 && orderC == 1 && deliveryC == 1){
+            alert("Thank you for your order! \nYour order total was: $" + totalCost)
+        }else{
+            alert("Please fix the named issues before submitting order.")
+        }
+    }
+    
+    function nameCheck(){
+        alert("hi")
+        var lastName = document.getElementById("lname").value;
+        if(lastName == ""){
+            return 0;
+            alert("Please enter a your last name into the correct input box.")
+        }else{
+            return 1;
+        }
+    }
+    
+    function numberCheck(){
+        var phoneCheck = document.getElementById("phone").value;
+        if(phoneCheck == ""){
+            return 0;
+            alertI("Please enter a valid phone number into the correct input box")
+        }else{
+            return 1;
+        }
+    }
+    
+    function orderCheck(){
+        totalC = document.getElementById("total").value;
+        if(totalCost < 0){
+            return 0;
+            alert("Your cart is empty! If you would like to order food, please indicate with the selection option.")
+        }else{
+            return 1;
+        }
+    }
+    
+    // could also use this function to determine the necesary time needed for either pickup or delivery
+    function deliveryCheck(){
+        var d_p = document.getElementsByName("p_or_d").value;
+        if(d_p == "pickup"){
+            return 1;
+        }else{
+            streetVal = document.getElementById("street").value;
+            cityVal = document.getElementById("city").value;
+            if(streetVal != "" && cityVal != ""){
+                return 1;
+            }else{
+                return 0;
+                alert("Please enter a valid street address and city");
+            }
+        }
+        
+    }
+  
+  
+    
+  document.writeln(s);
+    
+   
+</script>
+</table>
+    
+
+    
+<div id = "test"> 
+    
+</div>
+
+<p>Subtotal: 
+   $<input type="text"  name='subtotal' id="subtotal" />
+</p>
+<p>Mass tax 6.25%:
+  $ <input type="text"  name='tax' id="tax" />
+</p>
+<p>Total: $ <input type="text"  name='total' id="total" />
+</p>
+
+<input type = "button" value = "Submit Order" onclick = "submit()" />
+
+
+</form>
+</body>
+</html>
