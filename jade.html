@@ -5,6 +5,8 @@
 </head>
 
 <body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 <script language="javascript">
 
 function MenuItem(name, cost)
@@ -40,7 +42,9 @@ function makeSelect(name, minRange, maxRange)
 <p >Last Name*:  <input type="text"  name='lname' id = "lname" /></p>
 <p id = "street"> Street: <input type="text"  name='street' /></p>
 <p id = "city"> City: <input type="text"  name='city' /></p>
-<p id = "phone">Phone*: <input type="text"  name='phone' id = "phone"/></p>
+<p id = "phone">Phone*: <input type="text"  name='phone' id = "phone"/>
+<p id = "email">Email*: <input type="text"  name='email' id = "email"/>   
+</p>
 <p> 
 	<input type="radio"  name="p_or_d" id = "pickup" value = "pickup" />Pickup  
 	<input type="radio"  name='p_or_d' id = "delivery" value = 'delivery' checked = "checked"/>
@@ -53,28 +57,9 @@ function makeSelect(name, minRange, maxRange)
     <th>Cost Each</th>
     <th>Total Cost</th>
   </tr>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script language="javascript">
-   
-    // jquery code to determine what needs to appear to the customer
-    $(document).ready(function(){
-        $("#pickup").change(function(){
-            $("#street").hide();
-            $("#city").hide();
-        });
-        $("#delivery").change(function(){
-            $("#street").show();
-            $("#city").show();
-        });
-        //code to get the parameters of the element that caused the event
-        $("select").change(function(){
-            amount = this.selectedIndex;
-            rowIndex = this.name.substring(4);
-            calc();                
-        });
-    });
-
-  var s = "";
+    
+<script> 
+    var s = "";
   for (i=0; i< menuItems.length; i++)
   {
 	  s += "<tr><td>";
@@ -83,111 +68,11 @@ function makeSelect(name, minRange, maxRange)
 	  s += "<td> $ " + menuItems[i].cost.toFixed(2) + "</td>";
 	  s += "<td>$<input type='text' id = 'cost' name='cost' value = 0.00></td></tr>";
   }
-    
-    
-// function to calculate the total costs of each item
-  function calc(){
-      
-      amount = parseInt(amount);
-      rowIndex = parseInt(rowIndex);
-     
-      
-      
-      //var total = 0
-      //totalCost = [];
-      for (i=0; i< menuItems.length; i++){
-        var totalCost = amount * menuItems[rowIndex].cost;
-        //total += totalCost[rowIndex]
-        $("#cost").val(totalCost.toFixed(2))
-      }
-      var totalTax = (totalCost + (totalCost * .0625));
-      
-      $("#subtotal").val(totalCost.toFixed(2));
-      $("#tax").val((totalCost * .0625).toFixed(2));
-      $("#total").val(totalTax.toFixed(2));
-  }
-  
-  // function runs through a checklist to make sure that the order is ready to be processed
-  function submit(){
-      
-      totalCost = document.getElementById("cost").value;
-      
-      
-       numberC = nameCheck();
-       numberC = numberCheck();
-       orderC = orderCheck();
-       deliveryC = deliveryCheck();
-        
-        if(nameC == 1 && numberC == 1 && orderC == 1 && deliveryC == 1){
-            alert("Thank you for your order! \nYour order total was: $" + totalCost)
-        }else{
-            alert("Please fix the named issues before submitting order.")
-        }
-    }
-    
-    function nameCheck(){
-        alert("hi")
-        var lastName = document.getElementById("lname").value;
-        if(lastName == ""){
-            return 0;
-            alert("Please enter a your last name into the correct input box.")
-        }else{
-            return 1;
-        }
-    }
-    
-    function numberCheck(){
-        var phoneCheck = document.getElementById("phone").value;
-        if(phoneCheck == ""){
-            return 0;
-            alertI("Please enter a valid phone number into the correct input box")
-        }else{
-            return 1;
-        }
-    }
-    
-    function orderCheck(){
-        totalC = document.getElementById("total").value;
-        if(totalCost < 0){
-            return 0;
-            alert("Your cart is empty! If you would like to order food, please indicate with the selection option.")
-        }else{
-            return 1;
-        }
-    }
-    
-    // could also use this function to determine the necesary time needed for either pickup or delivery
-    function deliveryCheck(){
-        var d_p = document.getElementsByName("p_or_d").value;
-        if(d_p == "pickup"){
-            return 1;
-        }else{
-            streetVal = document.getElementById("street").value;
-            cityVal = document.getElementById("city").value;
-            if(streetVal != "" && cityVal != ""){
-                return 1;
-            }else{
-                return 0;
-                alert("Please enter a valid street address and city");
-            }
-        }
-        
-    }
-  
-  
-    
+                                
   document.writeln(s);
-    
-   
 </script>
+    
 </table>
-    
-
-    
-<div id = "test"> 
-    
-</div>
-
 <p>Subtotal: 
    $<input type="text"  name='subtotal' id="subtotal" />
 </p>
@@ -197,8 +82,166 @@ function makeSelect(name, minRange, maxRange)
 <p>Total: $ <input type="text"  name='total' id="total" />
 </p>
 
-<input type = "button" value = "Submit Order" onclick = "submit()" />
+<input type = "button" value = "Submit Order" onclick = "submitOrder()" />
+    
+<div id=thanksDiv> &nbsp; </div>
+<div id=timeDiv> &nbsp; </div>
+<div id=totalDiv> &nbsp; </div>
+<div id=stringDiv> &nbsp; </div>
+    
+<script language="javascript">
+   
+    // jquery code to determine what needs to appear to the customer
+    
+        $("#pickup").change(function(){
+            $("#street").hide();
+            $("#city").hide();
+        });
+        $("#delivery").change(function(){
+            $("#street").show();
+            $("#city").show();
+        });
+        
+        $("select").change(function(){
+		  for (i=0; i< menuItems.length; i++)
+		  {
+				quant = "quan" + i;
+				var amount =	$("select[name=" + quant + "] option:selected" ).val();
 
+				amount = amount * menuItems[i].cost;
+				amount = amount.toFixed(2);
+
+				document.getElementsByTagName("tr")[i+1].getElementsByTagName("td")[3].innerHTML =
+						"<td>$<input type='text' name='cost' value=" + (amount) + " /></td></tr>" ;
+
+				var subtotal = 0;
+				currSub =	$("[name='subtotal']").val();
+				if (currSub != ""){
+						subtotal = parseFloat(currSub) + parseFloat(amount);
+				} else {
+					  subtotal = parseFloat(amount);
+				}
+
+				subtotal = subtotal.toFixed(2);
+				$("[name='subtotal']").val(subtotal);
+              
+				tax = subtotal * .0625;
+				tax = tax.toFixed(2);
+				$("[name='tax']").val(tax);
+              
+				total = parseFloat(subtotal) + parseFloat(tax);
+				total = total.toFixed(2);
+				$("[name='total']").val(total);
+          }
+
+    });
+ 
+  // Function checks to make sure the phone number is valid
+  function phoneCheck(phoneNum)
+	{
+		 var regex = new RegExp(/^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/);    
+		 return regex.test(phoneNum);
+	}
+    
+     
+  // function runs through a checklist to make sure that the order is ready to be processed
+  function checkForm(){
+
+		goodCheck = true;
+		if ($("[name=lname]").val() == ""){
+			alert("Please enter a correct last name into the correct input box.");
+			goodCheck = false;
+		}
+      
+        var phoneNum = $("[name=phone]").val();
+		if (!phoneCheck(phoneNum) || $("[name=phone]").val() == ""){
+			alert("Please enter a valid phone number into the correct input box");
+			goodCheck = false;
+		}
+      
+        if ($("[name=email]").val() == ""){
+			alert("Please enter a valid email into the correct input box");
+			goodCheck = false;
+		} 
+
+		
+
+		if (document.getElementsByName('p_or_d')[1].checked){
+			if ($("[name=street]").val() == ""){
+				alert("Please enter a valid street address");
+				goodCheck = false;
+			} 
+
+			if ($("[name=city]").val() == ""){
+				alert("Please enter a valid city");
+				goodCheck = false;
+			} 
+		}
+
+		if ($("[name='subtotal']").val() == ""){
+			goodCheck = false;
+			alert("Your cart is empty! Please select at least one item to place an order.");
+		}
+
+		return goodCheck;
+	}
+ 
+  function submitOrder(){      
+      goodCheck = checkForm();
+		if (!goodCheck){
+			alert("Please fix the named issues before submitting order.");
+		} else {
+			document.getElementById('thanksDiv').innerHTML =	"<br> Thank you for your order! <br>";
+
+			est = 0;
+			var date = new Date();
+			est = date.getHours() % 12;
+
+
+			if (document.getElementsByName('p_or_d')[1].checked) {
+				min = date.getMinutes() + 30;
+				if (min > 60){
+					est ++;
+					min = min % 60;
+				}
+				est += ":";
+				if(min < 10){
+					est += "0";
+				}
+				est += min;
+				document.getElementById('timeDiv').innerHTML =	"<br> Your estimated time of delivery is: " + est + " <br>";
+			} else {
+				min = date.getMinutes() + 15;
+				if (min > 60){
+					est ++;
+					min = min % 60;
+				}
+				est += ":";
+				if(min < 10){
+					est += "0";
+				}
+				est += min;
+				document.getElementById('timeDiv').innerHTML =	"<br> Your estimated time for pick up is: " + est + " <br>";
+			}
+
+			total =	$("[name='total']").val();
+			document.getElementById('totalDiv').innerHTML = "<br> Your total is $" + total + " <br> ";
+
+			order = "<br> Your order: <br>";
+			for (i=0; i< menuItems.length; i++) {
+				quant = "quan" + i;
+				quantity = $("select[name=" + quant + "] option:selected" ).val();
+				if (quantity != 0) {
+						order += quantity + " " + menuItems[i].name + "<br>";
+				}
+			}
+
+			document.getElementById('stringDiv').innerHTML = order;
+		}
+	}
+  
+ 
+</script>
 
 </form>
 </body>
